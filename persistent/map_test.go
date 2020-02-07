@@ -1,12 +1,13 @@
-package persistentmap
+package persistent
 
 import (
 	"testing"
+	"github.com/bonnetn/persistentmap"
 )
 
 type IntKey int32
 
-func (s IntKey) Equal(c Comparable) bool {
+func (s IntKey) Equal(c persistentmap.Comparable) bool {
 	i, ok := c.(IntKey)
 	if !ok {
 		return false
@@ -20,7 +21,7 @@ func (s IntKey) Hash() int32 {
 
 type CollisionIntKey int32
 
-func (s CollisionIntKey) Equal(c Comparable) bool {
+func (s CollisionIntKey) Equal(c persistentmap.Comparable) bool {
 	i, ok := c.(CollisionIntKey)
 	if !ok {
 		return false
@@ -32,7 +33,7 @@ func (s CollisionIntKey) Hash() int32 {
 	return 1
 }
 
-func validateMap(t *testing.T, myMap persistentMap, want map[Key]*string) {
+func validateMap(t *testing.T, mapName string, myMap persistentMap, want map[persistentmap.Key]*string) {
 	for k, wantValue := range want {
 		wantOK := false
 		if wantValue != nil {
@@ -41,13 +42,13 @@ func validateMap(t *testing.T, myMap persistentMap, want map[Key]*string) {
 
 		gotValue, gotOK := myMap.Get(k)
 		if gotOK != wantOK {
-			t.Errorf("map[%v] returned ok=%t instead of %t", k, gotOK, wantOK)
+			t.Errorf("%s[%v] returned ok=%t instead of %t", mapName, k, gotOK, wantOK)
 		}
 		if wantValue == nil && gotValue != nil {
-			t.Errorf("map[%v] returned a non-nil value", k)
+			t.Errorf("%s[%v] returned a non-nil value", mapName, k)
 		}
 		if wantValue != nil && gotValue != *wantValue {
-			t.Errorf("map[%v] returned %v instead of %v", k, gotValue, *wantValue)
+			t.Errorf("%s[%v] returned %v instead of %v", mapName, k, gotValue, *wantValue)
 		}
 	}
 }
@@ -55,9 +56,9 @@ func validateMap(t *testing.T, myMap persistentMap, want map[Key]*string) {
 func TestMap(t *testing.T) {
 	tests := []struct {
 		name string
-		key1 Key
-		key2 Key
-		key3 Key
+		key1 persistentmap.Key
+		key2 persistentmap.Key
+		key3 persistentmap.Key
 	}{
 		{
 			name: "int key",
@@ -85,30 +86,35 @@ func TestMap(t *testing.T) {
 				map12    = map1.Set(tt.key2, value2)
 				map123   = map12.Set(tt.key3, value3)
 				map13    = map1.Set(tt.key3, value3)
-				map131    = map13.Set(tt.key1, value2)
+				map131   = map13.Set(tt.key1, value2)
 			)
 
-			validateMap(t, emptyMap, map[Key]*string{
+			validateMap(t, "emptyMap", emptyMap, map[persistentmap.Key]*string{
 				tt.key1: nil,
 				tt.key2: nil,
 				tt.key3: nil,
 			})
-			validateMap(t, map1, map[Key]*string{
+			validateMap(t, "mapWithKey1", map1, map[persistentmap.Key]*string{
 				tt.key1: &value1,
 				tt.key2: nil,
 				tt.key3: nil,
 			})
-			validateMap(t, map123, map[Key]*string{
+			validateMap(t, "mapWithKey1And2", map12, map[persistentmap.Key]*string{
+				tt.key1: &value1,
+				tt.key2: &value2,
+				tt.key3: nil,
+			})
+			validateMap(t, "mapWithKey1And2And3", map123, map[persistentmap.Key]*string{
 				tt.key1: &value1,
 				tt.key2: &value2,
 				tt.key3: &value3,
 			})
-			validateMap(t, map13, map[Key]*string{
+			validateMap(t, "mapWithKey1And3", map13, map[persistentmap.Key]*string{
 				tt.key1: &value1,
 				tt.key2: nil,
 				tt.key3: &value3,
 			})
-			validateMap(t, map131, map[Key]*string{
+			validateMap(t, "mapWithKey1And2And1", map131, map[persistentmap.Key]*string{
 				tt.key1: &value2,
 				tt.key2: nil,
 				tt.key3: &value3,
