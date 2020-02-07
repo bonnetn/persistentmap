@@ -25,20 +25,6 @@ type baseNode struct {
 }
 
 //////////////////////////////////////////////////////
-type emptyNode struct{ baseNode }
-
-func (l *emptyNode) assoc(key Key, hash int32, value Value) node {
-	return &leafNode{
-		baseNode: l.baseNode,
-		key:      key,
-		value:    value,
-		hash:     hash,
-	}
-}
-
-func (*emptyNode) find(Key, int32) (interface{}, bool) { return nil, false }
-
-//////////////////////////////////////////////////////
 
 type leafNode struct {
 	baseNode
@@ -191,7 +177,6 @@ func (l *arrayLeafNode) find(key Key, hash int32) (interface{}, bool) {
 
 //////////////////////////////////////////////////////
 var (
-	_ node = &emptyNode{}
 	_ node = &leafNode{}
 	_ node = &arrayLeafNode{}
 	_ node = &bitmapIndexedNode{}
