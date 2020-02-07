@@ -31,7 +31,7 @@ Amortized time complexity for Get/Set: `O(log32(n))` but it is sometimes conside
 
 Shantanu Kumar wrote in his book `Clojure High Performance Programming`:
 
-> [...] even though the complexity is O(log32(n)), only 2^32 hash codes can fit into the trie nodes. Hence, log32(2^32), which turns out to be 6.4 and is less than 7, is the worst-case complexity and can be considered neat-constant time.
+> [...] even though the complexity is O(log32(n)), only 2^32 hash codes can fit into the trie nodes. Hence, log32(2^32), which turns out to be 6.4 and is less than 7, is the worst-case complexity and can be considered near-constant time.
 
 Space complexity: `O(n)`
 
