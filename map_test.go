@@ -85,6 +85,7 @@ func TestMap(t *testing.T) {
 				map12    = map1.Set(tt.key2, value2)
 				map123   = map12.Set(tt.key3, value3)
 				map13    = map1.Set(tt.key3, value3)
+				map131    = map13.Set(tt.key1, value2)
 			)
 
 			validateMap(t, emptyMap, map[Key]*string{
@@ -104,6 +105,11 @@ func TestMap(t *testing.T) {
 			})
 			validateMap(t, map13, map[Key]*string{
 				tt.key1: &value1,
+				tt.key2: nil,
+				tt.key3: &value3,
+			})
+			validateMap(t, map131, map[Key]*string{
+				tt.key1: &value2,
 				tt.key2: nil,
 				tt.key3: &value3,
 			})

@@ -34,6 +34,14 @@ type leafNode struct {
 }
 
 func (l *leafNode) assoc(key Key, hash int32, value Value) node {
+	if l.hash == hash && l.key.Equal(key) {
+		return &leafNode{
+			baseNode: l.baseNode,
+			key:      key,
+			hash:     hash,
+			value:    value,
+		}
+	}
 	if l.level > maxDepth {
 		return &arrayLeafNode{
 			baseNode: l.baseNode,
@@ -147,7 +155,29 @@ type arrayLeafNode struct {
 }
 
 func (l *arrayLeafNode) assoc(key Key, hash int32, value Value) node {
+	if _, ok := l.find(key, hash); ok {
+		children := make([]*leafNode, 0, len(l.children))
+		for _, v := range l.children {
+			child := v
+			if v.hash == hash && v.key.Equal(key) {
+				child = &leafNode{
+					baseNode: v.baseNode,
+					key:      key,
+					hash:     hash,
+					value:    value,
+				}
+			}
+			children = append(children, child)
+		}
+		return &arrayLeafNode{
+			baseNode: l.baseNode,
+			children: children,
+		}
+	}
 	children := make([]*leafNode, 0, len(l.children))
+	for _, v := range l.children {
+		children = append(children, v)
+	}
 	children = append(children, &leafNode{
 		baseNode: baseNode{
 			level: l.level + 1,
@@ -156,9 +186,6 @@ func (l *arrayLeafNode) assoc(key Key, hash int32, value Value) node {
 		hash:  hash,
 		value: value,
 	})
-	for _, v := range l.children {
-		children = append(children, v)
-	}
 
 	return &arrayLeafNode{
 		baseNode: l.baseNode,
